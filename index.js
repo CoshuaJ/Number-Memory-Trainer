@@ -21,94 +21,61 @@ drawHomeScreen()
 //
 function drawHomeScreen() {
     // clear div
-    divElem.innerHTML = ""
+    clearDiv()
 
-    // add start btn
-    let startBtnElem = document.createElement("button")
-    startBtnElem.textContent = "Start"
-    startBtnElem.addEventListener("click", function() {
-        console.log("start btn clicked")
-        // go to memorize screen
-        drawMemorizeScreen()
-    })
-    divElem.append(startBtnElem)
+    // add start button
+    addButton("Start", drawMemorizeScreen)
 
     // add recent scores header
-    let subtitleElem = document.createElement("h3")
-    subtitleElem.textContent = "Recent Scores"
-    divElem.append(subtitleElem)
+    addH3("Recent Scores")
 
-    //
+    // add recent scores list
+    // NOTE: need db integration
     let listElem = document.createElement("ul")
     listElem.id = "leaderboard-elem"
     listElem.innerHTML = "<li>test1</li><li>test2</li>"
-    divElem.append(listElem)
+    divElem.appendChild(listElem)
 }
 
-//
+
 function drawMemorizeScreen() {
     // clear div
-    divElem.innerHTML = ""
+    clearDiv()
 
     // generate new magic number
     magicNumber = generateRandNum(currLevel)
-    console.log(magicNumber)
 
-    // add memorize number header
-    let subtitleElem = document.createElement("h3")
-    subtitleElem.textContent = "Memorize the Magic Number:"
-    divElem.append(subtitleElem)
+    addH3("Memorize the Magic Number:")
 
     // add the magic number
-    let magicNumElem = document.createElement("h3")
-    magicNumElem.textContent = `${magicNumber}`
-    divElem.append(magicNumElem)
+    addH3(`${magicNumber}`)
 
     // add ready button
-    let readyBtnElem = document.createElement("button")
-    readyBtnElem.textContent = "Ready"
-    readyBtnElem.addEventListener("click", function() {
-        console.log("ready btn clicked")
-        //
-        drawResponseScreen()
-    })
-    divElem.append(readyBtnElem)
-
+    addButton("Ready", drawResponseScreen)
 }
 
 //
 function drawResponseScreen() {
     // clear div
-    divElem.innerHTML = ""
+    clearDiv()
 
     // add enter number header
-    let subtitleElem = document.createElement("h3")
-    subtitleElem.textContent = "Enter the Magic Number:"
-    divElem.append(subtitleElem)
+    addH3("Enter the Magic Number:")
 
     // add input box
-    let inputElem = document.createElement("input")
-    inputElem.type = "number"
-    inputElem.placeholder= "123"
-    divElem.append(inputElem)
+    let inputElem = addInput("number")
 
     // add submit button
-    let submitBtnElem = document.createElement("button")
-    submitBtnElem.textContent = "Submit"
-    submitBtnElem.addEventListener("click", function() {
-        console.log("submit btn clicked")
-        //
+    addButton("Submit", function() {
         currAnswer = parseInt(inputElem.value, 10)
-        //
         drawResultScreen()
     })
-    divElem.append(submitBtnElem)
 }
 
 //
 function drawResultScreen() {
     // clear div
-    divElem.innerHTML = ""
+    clearDiv()
 
     // add curr level
     addH3(`Level ${currLevel}`)
@@ -129,14 +96,10 @@ function drawResultScreen() {
         // add recent score to database
 
         // add home button
-        console.log("wrong")
+        addButton("Home", drawHomeScreen)
     }
-    
-
-
 }
 
-//
 function addH3(text) {
     let elem = document.createElement("h3")
     elem.textContent = text
@@ -153,16 +116,24 @@ function addButton(text, fn) {
     return elem
 }
 
-//
+function addInput(type) {
+    let inputElem = document.createElement("input")
+    inputElem.type = type
+    divElem.appendChild(inputElem);
+    return inputElem;
+}
+
+function clearDiv() {
+    divElem.innerHTML = "";
+}
+
 function generateRandNum(n) {
     let numString = ""
-    // random integer 0-9
-    
+    // generate n digits
     for (let i = 0; i < n; i++) {
+        // random integer 0-9
         numString += Math.floor(Math.random() * 10);
     }
-    console.log(numString)
-
     return parseInt(numString, 10)
 }
 
