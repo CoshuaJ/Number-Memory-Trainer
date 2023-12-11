@@ -47,5 +47,15 @@ ul {
     margin: 0;
     list-style-type: none;
     text-align: center;
+}
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* firefox input box*/
+input[type=number] {
+    -moz-appearance: textfield;
 }

@@ -12,8 +12,9 @@ const scoresInDB = ref(database, "scores")
 
 // game variables
 const divElem = document.getElementById("div1")
-let currScore = 0
-let magicNumber = 0
+let currLevel = 1
+let magicNumber = -1
+let currAnswer = -1
 // start
 drawHomeScreen()
 
@@ -49,9 +50,13 @@ function drawMemorizeScreen() {
     // clear div
     divElem.innerHTML = ""
 
+    // generate new magic number
+    magicNumber = generateRandNum(currLevel)
+    console.log(magicNumber)
+
     // add memorize number header
     let subtitleElem = document.createElement("h3")
-    subtitleElem.textContent = "Memorize this number!"
+    subtitleElem.textContent = "Memorize the Magic Number:"
     divElem.append(subtitleElem)
 
     // add the magic number
@@ -77,12 +82,88 @@ function drawResponseScreen() {
     divElem.innerHTML = ""
 
     // add enter number header
+    let subtitleElem = document.createElement("h3")
+    subtitleElem.textContent = "Enter the Magic Number:"
+    divElem.append(subtitleElem)
 
     // add input box
+    let inputElem = document.createElement("input")
+    inputElem.type = "number"
+    inputElem.placeholder= "123"
+    divElem.append(inputElem)
 
     // add submit button
+    let submitBtnElem = document.createElement("button")
+    submitBtnElem.textContent = "Submit"
+    submitBtnElem.addEventListener("click", function() {
+        console.log("submit btn clicked")
+        //
+        currAnswer = parseInt(inputElem.value, 10)
+        //
+        drawResultScreen()
+    })
+    divElem.append(submitBtnElem)
 }
 
+//
+function drawResultScreen() {
+    // clear div
+    divElem.innerHTML = ""
 
+    // add curr level
+    addH3(`Level ${currLevel}`)
+
+    // correct number header
+    addH3(`Magic Number: ${magicNumber}`)
+
+    // user answer header
+    addH3(`Your Answer: ${currAnswer}`)
+
+    // right/wrong header
+    if (magicNumber === currAnswer) {
+        // increase currLevel
+        currLevel += 1 
+        addButton("Next", drawMemorizeScreen)
+
+    } else {
+        // add recent score to database
+
+        // add home button
+        console.log("wrong")
+    }
+    
+
+
+}
+
+//
+function addH3(text) {
+    let elem = document.createElement("h3")
+    elem.textContent = text
+    divElem.append(elem)
+    return elem
+}
+
+function addButton(text, fn) {
+    let elem = document.createElement("button")
+    elem.textContent = text
+    elem.addEventListener("click", fn)
+    // note: add enter keypress detection
+    divElem.append(elem)
+    return elem
+}
+
+//
+function generateRandNum(n) {
+    let numString = ""
+    // random integer 0-9
+    
+    for (let i = 0; i < n; i++) {
+        numString += Math.floor(Math.random() * 10);
+    }
+    console.log(numString)
+
+    return parseInt(numString, 10)
+}
 
 
