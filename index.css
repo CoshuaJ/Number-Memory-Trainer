@@ -12,9 +12,17 @@ html, body {
     margin: 30px auto;
 }
 
-h1, h3 {
+h1 {
     color: black;
     text-align: center;
+    max-width: 320px;
+    margin: 30px auto;
+}
+
+h3 {
+    color: black;
+    text-align: center;
+    margin: 15px auto;
 }
 
 button {
@@ -35,8 +43,9 @@ button:hover {
 }
 
 ul {
-    list-style-type: none;
     padding: 0;
+    margin: 0;
+    list-style-type: none;
     text-align: center;
 
 }
