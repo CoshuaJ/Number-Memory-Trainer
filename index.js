@@ -64,13 +64,17 @@ function appendScoreToListElem(scoreObject) {
 // start
 drawHomeScreen()
 
-//
 function drawHomeScreen() {
     // reset currLevel
     currLevel = 1
 
     // clear div
     clearDiv()
+
+    // add img
+    let imgElem = document.createElement("img")
+    imgElem.src = "assets/brain.png"
+    divElem.append(imgElem)
 
     // add start button
     addButton("Start", drawMemorizeScreen)
@@ -90,16 +94,18 @@ function drawMemorizeScreen() {
     // generate new magic number
     magicNumber = generateRandNum(currLevel)
 
-    addH3("Memorize the Magic Number:")
+    // add curr level
+    addH3(`Level ${currLevel}`)
 
     // add the magic number
-    addH3(`${magicNumber}`)
+    addH3("Memorize the Magic Number:")
+    addP(`${magicNumber}`)
 
     // add ready button
     addButton("Ready", drawResponseScreen)
 }
 
-//
+
 function drawResponseScreen() {
     // clear div
     clearDiv()
@@ -117,19 +123,18 @@ function drawResponseScreen() {
     })
 }
 
-//
+
 function drawResultScreen() {
     // clear div
     clearDiv()
 
-    // add curr level
-    addH3(`Level ${currLevel}`)
-
     // correct number header
-    addH3(`Magic Number: ${magicNumber}`)
+    addH3(`Magic Number:`)
+    addP(`${magicNumber}`)
 
     // user answer header
-    addH3(`Your Answer: ${currAnswer}`)
+    addH3(`Your Answer:`)
+    addP(`${currAnswer}`)
 
     // right/wrong header
     if (magicNumber === currAnswer) {
@@ -139,7 +144,12 @@ function drawResultScreen() {
 
     } else {
         // add enter name prompt
-        addH3("Enter your initials")
+        if (currLevel > 7) {
+            addH3("Impressive!")
+        } else {
+            addH3("Unlucky!")   
+        }
+        addH3("Enter your initials:")
         // add initials input field
         let inputElem = addInput("text")
         inputElem.maxLength = 3        
@@ -147,18 +157,22 @@ function drawResultScreen() {
         // add home button
         addButton("Home", function() {
             // add recent score to database
-            if (inputElem.value !== "") {
-                let nameScoreStr = `${inputElem.value} - ${currLevel}`.toUpperCase()
-
-                //
-                let scoreObject = {
-                    score: nameScoreStr,
-                    timestamp: serverTimestamp()
-                }
-
-                push(scoresInDB, scoreObject)
-                console.log(scoreObject)
+            let name = inputElem.value
+            if (name === "") {
+                name = "???"
             }
+
+            let nameScoreStr = `${name} - ${currLevel}`.toUpperCase()
+
+            // create object
+            let scoreObject = {
+                score: nameScoreStr,
+                timestamp: serverTimestamp()
+            }
+
+            // push to db
+            push(scoresInDB, scoreObject)
+            
             drawHomeScreen()
         }) 
     }
@@ -166,6 +180,13 @@ function drawResultScreen() {
 
 function addH3(text) {
     let elem = document.createElement("h3")
+    elem.textContent = text
+    divElem.append(elem)
+    return elem
+}
+
+function addP(text) {
+    let elem = document.createElement("p")
     elem.textContent = text
     divElem.append(elem)
     return elem
