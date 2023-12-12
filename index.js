@@ -23,38 +23,37 @@ const maxNumScores = 5
 // keep scoresListElem up to date with db
 onValue(scoresInDB, function(snapshot) {
     if (snapshot.exists()) {
-        // extract db key/value pairs
+        // extract db objects
         let scoresArray = Object.entries(snapshot.val())
-        
+
+        // sort by timestamp, newest first
+        scoresArray.sort((a, b) => (b[1].timestamp - a[1].timestamp)) 
+
         // clear listElem contents
         scoresListElem.innerHTML = ""
-        // check if scores cull required
-        let cullActive = false
-        let numScores = scoresArray.length
-        if (numScores > maxNumScores) {
-            cullActive = true
-        }
+
+        // only display up to 5 most recent
+        let numScores = Math.min(scoresArray.length, maxNumScores)
+
         // add scores from db to listElem
         for (let i = 0; i < scoresArray.length; i++) {
             let currScore = scoresArray[i]
-            if (false /*cullActive && i >= maxNumScores*/) {
-                // delete db entry
+            if (i < numScores) {
+                appendScoreToListElem(currScore)
+            } else {
                 let dbRef = ref(database, `scores/${currScore[0]}`)
                 remove(dbRef)
-            } else {
-                appendScoreToListElem(currScore)
             }
         }
-        //
     } else {
         // no scores in db
         scoresListElem.innerHTML = "No scores available"
     }
 })
 
-function appendScoreToListElem(scoreArr) {
-    let id = scoreArr[0]
-    let score = scoreArr[1]
+function appendScoreToListElem(scoreObject) {
+    let id = scoreObject[0]
+    let score = scoreObject[1].score
 
     let liElem = document.createElement("li")
     liElem.textContent = score
@@ -196,8 +195,14 @@ function generateRandNum(n) {
     let numString = ""
     // generate n digits
     for (let i = 0; i < n; i++) {
-        // random integer 0-9
-        numString += Math.floor(Math.random() * 10);
+        // first digit cant be 0
+        if (i === 0) {
+            numString += Math.floor(Math.random() * 9 + 1);
+        } else {
+            // random integer 0-9
+            numString += Math.floor(Math.random() * 10);
+        }
+        
     }
     return parseInt(numString, 10)
 }
