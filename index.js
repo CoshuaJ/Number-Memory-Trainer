@@ -1,6 +1,6 @@
 // imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
+import { getDatabase, ref, push, onValue, remove, serverTimestamp} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
 
 // database constants
 const appSettings = {
@@ -15,11 +15,61 @@ const divElem = document.getElementById("div1")
 let currLevel = 1
 let magicNumber = -1
 let currAnswer = -1
+
+// recent scores leaderboard
+let scoresListElem = document.createElement("ul")
+const maxNumScores = 5
+
+// keep scoresListElem up to date with db
+onValue(scoresInDB, function(snapshot) {
+    if (snapshot.exists()) {
+        // extract db key/value pairs
+        let scoresArray = Object.entries(snapshot.val())
+        
+        // clear listElem contents
+        scoresListElem.innerHTML = ""
+        // check if scores cull required
+        let cullActive = false
+        let numScores = scoresArray.length
+        if (numScores > maxNumScores) {
+            cullActive = true
+        }
+        // add scores from db to listElem
+        for (let i = 0; i < scoresArray.length; i++) {
+            let currScore = scoresArray[i]
+            if (false /*cullActive && i >= maxNumScores*/) {
+                // delete db entry
+                let dbRef = ref(database, `scores/${currScore[0]}`)
+                remove(dbRef)
+            } else {
+                appendScoreToListElem(currScore)
+            }
+        }
+        //
+    } else {
+        // no scores in db
+        scoresListElem.innerHTML = "No scores available"
+    }
+})
+
+function appendScoreToListElem(scoreArr) {
+    let id = scoreArr[0]
+    let score = scoreArr[1]
+
+    let liElem = document.createElement("li")
+    liElem.textContent = score
+
+    scoresListElem.append(liElem)
+}
+
 // start
 drawHomeScreen()
 
 //
 function drawHomeScreen() {
+    // reset currLevel
+    currLevel = 1
+
     // clear div
     clearDiv()
 
@@ -30,11 +80,7 @@ function drawHomeScreen() {
     addH3("Recent Scores")
 
     // add recent scores list
-    // NOTE: need db integration
-    let listElem = document.createElement("ul")
-    listElem.id = "leaderboard-elem"
-    listElem.innerHTML = "<li>test1</li><li>test2</li>"
-    divElem.appendChild(listElem)
+    divElem.appendChild(scoresListElem)
 }
 
 
@@ -93,10 +139,29 @@ function drawResultScreen() {
         addButton("Next", drawMemorizeScreen)
 
     } else {
-        // add recent score to database
-
+        // add enter name prompt
+        addH3("Enter your initials")
+        // add initials input field
+        let inputElem = addInput("text")
+        inputElem.maxLength = 3        
+        
         // add home button
-        addButton("Home", drawHomeScreen)
+        addButton("Home", function() {
+            // add recent score to database
+            if (inputElem.value !== "") {
+                let nameScoreStr = `${inputElem.value} - ${currLevel}`.toUpperCase()
+
+                //
+                let scoreObject = {
+                    score: nameScoreStr,
+                    timestamp: serverTimestamp()
+                }
+
+                push(scoresInDB, scoreObject)
+                console.log(scoreObject)
+            }
+            drawHomeScreen()
+        }) 
     }
 }
 
